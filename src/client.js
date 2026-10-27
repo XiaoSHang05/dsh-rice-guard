@@ -40,7 +40,7 @@
  *
  * @param React - the shell's React instance (hooks only).
  * @param css - the stylesheet text, injected once under a `data-plugin-css` tag.
- * @param require_ - the ModuleLoader resolver, kept for optional peers.
+ * @param require_ - the ModuleLoader resolver (unused; no optional peers remain).
  * @returns the `apply` / `inject` pair the ModuleLoader exports.
  */
 function createRiceGuardClient(React, css, require_) {
@@ -1642,19 +1642,6 @@ function createRiceGuardClient(React, css, require_) {
       return function () { store.dispose() }
     }, 'dsh-rice-guard: shared store')
     // Store lifetime belongs to the plugin, not the selected conversation tab.
-
-    // Optional dock integration: no manifest dependency and no retry timer.
-    ctx.effect(function () {
-      try {
-        var dock = require_('dsh-dock/client').dockBridge
-        if (!dock || typeof dock.register !== 'function') return
-        return dock.register({
-          id: 'rice-guard', name: '米饭守卫', order: 120,
-          description: '监控思考与输出的重复内容', package: 'dsh-rice-guard',
-          View: function () { return h(RiceGuardView, { store: store, t: translateFn }) }
-        })
-      } catch (error) { /* Dock is optional; the tab and alarm remain independent. */ }
-    }, 'dsh-rice-guard: optional dock')
 
     /**
      * Reference-counted start/stop.

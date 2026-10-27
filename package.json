@@ -1,6 +1,6 @@
 {
   "name": "dsh-rice-guard",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "type": "module",
   "description": "Repeat-output guard for DSH: watches the live assistant stream (thinking and text), catches verbatim loops and counting loops that differ only by a number, raises a manual-dismiss alarm, and cancels the runaway turn.",
   "keywords": [
