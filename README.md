@@ -28,7 +28,9 @@ DSH 的独立插件：监视模型的**思考流和正式输出流**，发现重
 
 ## 安装与入口
 
-兼容当前验证的 DSH `0.2.0-rc.2`；包声明范围为 `>=0.2.0-0 <0.3.0`。宿主需要提供 `webServer` 和 agent 运行时，以及 `@deepseek-ai/schemastery ^3.18.1`。
+兼容已在 DSH `0.2.2-rc.3` 上实测通过；包声明范围为 `>=0.2.0-0`，不设上界。宿主需要提供 `webServer` 和 agent 运行时，以及 `@deepseek-ai/schemastery ^3.18.1`。
+
+> 为什么不设上界：本插件只用到宿主四个稳定接口——`webServer`（挂 `dsh-rice-guard/api/` 路由）、`settings`（持久化配置）、`agents`（取会话）、以及 `agent.cancel()`（打断回合）。它不碰 DSH 的模型层、UI 渲染层或 Session 存储格式，是挂在事件流外面的一层旁路监听。这四个接口在 0.2.x 系列内没有变动；上界只会让插件在 DSH 正常升级后被市场误标为「不兼容」，而实际功能并不受影响。
 
 在包含本文件与 package.json 的插件目录中安装：
 

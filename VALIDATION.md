@@ -1,5 +1,29 @@
 # 交付验证记录
 
+验证对象：dsh-rice-guard 0.3.2，当前开发工作区构建产物。测试运行环境 Node.js 26.13.0；真实宿主 DSH **0.2.2-rc.3**（Windows 桌面版，Electron 44.7.0）。
+
+## 0.3.2 在 DSH 0.2.2-rc.3 上的复测（2026-11-14）
+
+在用户本机真实的 DSH 0.2.2-rc.3 运行时上做的实测，不是构造环境：
+
+| 项目 | 方法 | 结果 |
+| --- | --- | --- |
+| 宿主半已挂载 | 插件管理处 `include:rice-guard` | `enabled: true`，`fiberPhase: active` |
+| 配置 schema 有效 | `cordis_inspect_query` → `Config.listConfigs` | `status: schema`，16 个字段全部正确投影 |
+| HTTP 路由存活 | `GET /dsh-rice-guard/api/health` | `{"ok":true,"value":{"backend":"present","version":1}}` |
+| 状态接口 | `GET /dsh-rice-guard/api/state` | 200，正确回吐配置与两条实时会话 |
+| SSE 通知流 | `GET /dsh-rice-guard/api/events` | 200，收到 `retry`、`ping` 与 `state` 帧 |
+| 客户端「监控」页 | `cordis_inspect_query` → 客户端 `Slots.listSubTree` | 挂在 `conversation.view`，`id: rice-guard`，`order: 120`，**`active: true`** |
+| 依赖的宿主 Service | 同上 `Service.listService` | `webServer`、`settings`、`agents` 均存在且签名一致 |
+| 依赖的宿主 Event | `Event.listEvents` | `agent/assistant-stream` 存在，`StreamChunk` 含 `text-delta` / `reasoning-delta` |
+| 全量回归断言 | `node scripts/check.mjs` + `node scripts/test.mjs` | 静态校验通过；八个测试台 **232/232** 全过 |
+
+结论：0.3.2 在 DSH 0.2.2-rc.3 上功能完整，无需改动代码。`engines.dsh` 放宽为 `>=0.2.0-0` 的依据见 README。
+
+> 说明：旧声明 `>=0.2.0-0 <0.3.0` 在 0.2.2-rc.3 上**本就判定为 `compatible`**（已用 `dsh-market` 自己的 `deriveHostCompatibility` 验证）。本次改动的目的是避免 DSH 后续升级后被市场误标为不兼容，不是修复当下故障。
+
+## 历史验证记录
+
 验证对象：dsh-rice-guard 0.3.0，当前开发工作区构建产物。测试运行环境 Node.js 22.23.1；真实宿主 DSH 0.2.0-rc.2。
 
 > 0.3.0 只改身份不改行为：包名 `dsh-loop-guard` → `dsh-rice-guard`，界面标签页 id、CSS 类名前缀（`lg-` → `rg-`）、跨半 HTTP 路径（`/dsh-loop-guard/api/` → `/dsh-rice-guard/api/`）随之更换。下表 232 个断言即改名后重跑的结果，未经删改。
