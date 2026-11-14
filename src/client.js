@@ -125,6 +125,7 @@ function createRiceGuardClient(React, css, require_) {
     'view.monitor': '监控',
     'title.monitor': '复读监控',
     'subtitle': '模型开始重复自己时，这里会亮起来，并且打断这一回合。',
+    'credit': 'dsh-rice-guard · 米饭守卫 · by XiaoSHang05',
     'label.master': '启用监控',
     'label.masterHint': '关闭后不观察任何流，也不会打断任何回合。',
     'label.autoCancel': '自动打断',
@@ -1447,6 +1448,10 @@ function createRiceGuardClient(React, css, require_) {
         ),
         h(HitList, { hits: snapshot.hits, t: t }),
       ),
+      // A quiet signature at the bottom-right of the page: which plugin this is
+      // and who wrote it. It carries no state and no controls — it is the one
+      // place in the panel that tells a user who to blame, or who to thank.
+      h('div', { className: 'rg-credit' }, t('credit')),
     )
   }
 

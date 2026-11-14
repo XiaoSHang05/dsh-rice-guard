@@ -128,6 +128,15 @@ try {
   check(card!==null,'a configured phrase raises the alarm card')
   check(card.textContent.includes('自定义短语'),'the card names the rule that fired, not a generic one')
 
+  // The signature row: the one place on the page that says which plugin this is
+  // and who wrote it. It must close the page, carry no controls, and read exactly
+  // as authored — a drifted literal here would misattribute the plugin.
+  const credit=document.querySelector('.rg-credit')
+  check(credit!==null,'the monitor closes with a signature row')
+  check(credit.textContent==='dsh-rice-guard · 米饭守卫 · by XiaoSHang05','the signature text is exact')
+  check(document.querySelector('.rg-root').lastElementChild===credit,'the signature is the last block on the page')
+  check(credit.querySelector('button, a, input')===null,'the signature carries no controls')
+
   await typeInto('')
   check((await host.request('GET','state')).json.value.config.customPhrases.length===0,'clearing the box clears the rule')
   await act(async()=>{root.unmount()})

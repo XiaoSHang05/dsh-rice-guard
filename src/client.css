@@ -764,3 +764,19 @@
     width: 44%;
   }
 }
+
+/* ------------------------------------------------------------------ credit */
+
+/* The signature row closes the page: right-aligned, tertiary, and deliberately
+   quiet — it must never compete with the hit table above it. */
+.rg-credit {
+  margin-top: 20px;
+  padding-top: 12px;
+  border-top: 1px solid var(--dsw-alias-border-l2);
+  color: var(--dsw-alias-label-tertiary);
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  text-align: right;
+  user-select: text;
+  word-break: break-word;
+}

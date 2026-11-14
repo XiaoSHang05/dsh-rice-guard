@@ -34,6 +34,9 @@ const mutations=[
   ['src/client.js','      wanted\n        ? h(','      phrases.length > 0\n        ? h(','_probe/render/mount.mjs'],
   ['src/client.js',"h('span', { key: 'dot', className: 'rg-dot rg-dot--live', 'aria-hidden': 'true' }),", "h('span', { key: 'dot', className: 'rg-dot rg-dot--live', 'aria-hidden': 'true' }, t('label.live')),",'_probe/render/mount.mjs'],
   ['src/client.js',"run('hits', { clearAll: true })","run('hits', { dismissed: true })",'_probe/render/mount.mjs'],
+  // Dropping the signature row must turn the mount harness red, or the credit is
+  // decoration nothing defends — the next refactor could delete it in silence.
+  ['src/client.js',"h('div', { className: 'rg-credit' }, t('credit')),",'null,','_probe/render/mount.mjs'],
 ]
 for(const [file,from,to,test] of mutations){
   const path=new URL(file,root), before=await readFile(path)
@@ -53,4 +56,4 @@ for(const [file,from,to,test] of mutations){
     if(file.includes('client')) assert.equal(spawnSync(process.execPath,['scripts/build-client.mjs'],{cwd:root,stdio:'ignore'}).status,0)
   }
 }
-console.log('mutation: 8/8 checks passed; original files restored')
+console.log('mutation: 9/9 checks passed; original files restored')
