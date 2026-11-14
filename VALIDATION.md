@@ -18,6 +18,36 @@
 | 依赖的宿主 Event | `Event.listEvents` | `agent/assistant-stream` 存在，`StreamChunk` 含 `text-delta` / `reasoning-delta` |
 | 全量回归断言 | `node scripts/check.mjs` + `node scripts/test.mjs` | 静态校验通过；八个测试台 **232/232** 全过 |
 
+### 活体触发验证（真实触发，非构造）
+
+为确认「监控在真实流上确实会报警」，在本机 DSH 0.2.2-rc.3 运行中的真实会话里做了端到端触发。为避免把正在做验证的这一回合自己掐断，先通过 `POST /dsh-rice-guard/api/config` 临时置 `cancel: false`（只报警不打断），测完立刻恢复为 `true`。
+
+| 阶段 | 观察 | 结论 |
+| --- | --- | --- |
+| 监控在流上实时推进 | 本会话 `chars` 随本轮输出增长至 6289，`stream` 在 `thinking`/`text` 间正确切换 | 订阅与分流正常 |
+| 首次喂入复读 | `repeats` 0 → **3**，`score` 随之上升 | 检测器在真实增量上工作 |
+| 中途插入一句正常文字 | `repeats` 归 **0** | 「连续周期」判据生效：被打断的重复不算复读 |
+| 干净连续输出 12 遍 | `repeats` = **4**，`score` = **0.8** | 阈值逼近但未达 |
+| 再连续输出 15 遍 | **命中**，`hits` 从 0 变 1 | 报警链路打通 |
+
+命中记录的原文（`GET /dsh-rice-guard/api/state` 取回）：
+
+```json
+{
+  "id": "hmwfx0v1p-1",
+  "stream": "text",
+  "kind": "cycle",
+  "unit": "去吧。让我去吧。让我",
+  "repeats": 5,
+  "cancelled": false,
+  "dismissed": false
+}
+```
+
+`repeats: 5` 与阈值 `minRepeat: 5` 一致；`cancelled: false` 正确反映了测试期间 `cancel: false` 的设置（若为 `true`，该字段会是 `true` 且回合会被 `agent.cancel()` 掐断）；`kind: "cycle"` 说明命中的是第一规则（逐字周期重复），不是后两条推断性规则。测完已恢复 `cancel: true`，并用 `POST hits {clearAll:true}` 清空测试记录（`hits` 回到 0），未留下残留状态。
+
+> 说明：这次触发是**真实产生**的，值班会话里出现了复读文本，检测器自己判定并发出了命中记录。它不是直接往插件内部塞一个假命中——插件也没有提供这种行为，它的 API 面只有 `health/state/config/monitor/hits/events` 六个只读或配置类动作。
+
 结论：0.3.2 在 DSH 0.2.2-rc.3 上功能完整，无需改动代码。`engines.dsh` 放宽为 `>=0.2.0-0` 的依据见 README。
 
 > 说明：旧声明 `>=0.2.0-0 <0.3.0` 在 0.2.2-rc.3 上**本就判定为 `compatible`**（已用 `dsh-market` 自己的 `deriveHostCompatibility` 验证）。本次改动的目的是避免 DSH 后续升级后被市场误标为不兼容，不是修复当下故障。
